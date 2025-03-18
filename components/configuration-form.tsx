@@ -10,8 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { useCommitStore } from "@/lib/commit-store"
-import { generateCommits } from "@/lib/actions"
-import { Loader2, InfoIcon, Terminal, ExternalLink, Eye, EyeOff } from "lucide-react"
+import { generateCommitsClient } from "@/lib/client-actions"
+import { Loader2, InfoIcon, Terminal, ExternalLink, Eye, EyeOff, AlertCircle } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Link from "next/link"
@@ -85,8 +85,8 @@ export default function ConfigurationForm() {
         messages = formData.customMessages.split("\n").filter((msg) => msg.trim())
       }
 
-      // Call the server action to generate commits
-      const result = await generateCommits({
+      // Use the client-side function instead of server action
+      const result = await generateCommitsClient({
         username: formData.username,
         token: formData.token,
         repository: formData.repository,
@@ -94,30 +94,17 @@ export default function ConfigurationForm() {
         customMessages: messages,
         year: formData.year,
         rateLimit: formData.rateLimit,
-        batchSize: formData.batchSize
+        batchSize: formData.batchSize,
+        // Add a progress callback function to update UI in real-time
+        onProgress: (progressPercent, commitsMade, message) => {
+          setProgress(progressPercent);
+          setCommitsMade(commitsMade);
+          addLog(message);
+        }
       })
 
-      // Update progress based on result
+      // Handle the result
       if (result.success) {
-        // Simulate progress update
-        const updateInterval = 100; // ms
-        const totalUpdates = 20; // number of updates
-        
-        for (let i = 1; i <= totalUpdates; i++) {
-          const simulatedProgress = Math.floor((i / totalUpdates) * 100);
-          const simulatedCommits = Math.floor((i / totalUpdates) * totalCommits);
-          
-          setProgress(simulatedProgress);
-          setCommitsMade(simulatedCommits);
-          
-          if (i % 4 === 0) {
-            // Only log every 4th update to avoid too many logs
-            addLog(`Progress: ${simulatedCommits}/${totalCommits} commits (${simulatedProgress}%)`);
-          }
-          
-          await new Promise(resolve => setTimeout(resolve, updateInterval));
-        }
-        
         toast({
           title: "Commits Generated",
           description: `Successfully generated ${result.totalCommits} commits`,
@@ -136,6 +123,14 @@ export default function ConfigurationForm() {
           variant: "destructive",
         })
         addLog(`❌ Error: ${result.error}`)
+        
+        // If we have partial progress information, show it
+        if (result.progress) {
+          setCommitsMade(result.progress.commitsMade);
+          setProgress(Math.floor((result.progress.commitsMade / result.progress.totalCommits) * 100));
+          addLog(`Generated ${result.progress.commitsMade}/${result.progress.totalCommits} commits before error occurred`);
+          addLog(`You can try again later and the process will resume from where it left off`);
+        }
       }
     } catch (error) {
       toast({
@@ -325,6 +320,22 @@ export default function ConfigurationForm() {
               </div>
             </div>
 
+            {!isGenerating && totalCommitsToMake > 200 && (
+              <Alert className="bg-yellow-950/20 border-yellow-500/30 text-yellow-500">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Large Job Warning</AlertTitle>
+                <AlertDescription>
+                  You're generating {totalCommitsToMake} commits, which may take {estimatedTime} minutes or more.
+                  This will run in your browser and can be resumed if interrupted. For large jobs, we recommend:
+                  <ul className="list-disc ml-5 mt-2 space-y-1 text-sm">
+                    <li>Keep this tab open during the process</li>
+                    <li>Increase the rate limit if your connection is stable</li>
+                    <li>Use a dedicated repository for these commits</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
+
             <Button 
               type="submit" 
               disabled={isGenerating}
@@ -345,9 +356,11 @@ export default function ConfigurationForm() {
 
             {isGenerating && (
               <ProgressDisplay 
-                progress={progress}
-                current={commitsMade}
-                total={totalCommitsToMake}
+                progress={progress} 
+                current={commitsMade} 
+                total={totalCommitsToMake} 
+                estimatedTimeMinutes={estimatedTime}
+                rateLimit={formData.rateLimit}
               />
             )}
 

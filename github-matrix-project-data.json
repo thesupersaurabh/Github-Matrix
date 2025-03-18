@@ -1,0 +1,14 @@
+{
+  "title": "GitHub Matrix",
+  "description": "Cyberpunk-themed tool to design custom GitHub contribution patterns with precise timestamp control",
+  "tech": ["Next.js", "React", "TypeScript", "Tailwind CSS", "GitHub API", "Zustand", "HTML Canvas", "Shadcn UI"],
+  "icon": "Github",
+  "achievements": [
+    "Built interactive contribution graph designer with real-time visual feedback",
+    "Implemented API for generating backdated commits with precise timestamps",
+    "Created cyberpunk UI with matrix animation effects using HTML Canvas",
+    "Designed secure client-side architecture with fine-grained access token handling"
+  ],
+  "sourceCode": "https://github.com/thesupersaurabh/github-matrix",
+  "livePreview": "https://github-matrix.vercel.app/"
+} 
