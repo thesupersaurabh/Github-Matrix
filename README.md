@@ -13,7 +13,7 @@
   <h3>Hack the GitHub contribution graph with style.</h3>
   
   <p>
-    <a href="https://github-matrix.vercel.app">Live Demo</a> •
+    <a href="https://ghm.thesaurabh.tech/">Live Demo</a> •
     <a href="#key-features">Key Features</a> •
     <a href="#installation">Installation</a> •
     <a href="#usage-guide">Usage Guide</a> •
