@@ -18,7 +18,9 @@
     <a href="#installation">Installation</a> •
     <a href="#usage-guide">Usage Guide</a> •
     <a href="#security">Security</a> •
-    <a href="#license">License</a>
+    <a href="#technical-details">Technical Details</a> •
+    <a href="#license">License</a> •
+    <a href="#contributing">Contributing</a>
   </p>
 </div>
 
@@ -69,6 +71,24 @@
       </ul>
     </td>
   </tr>
+  <tr>
+    <td width="50%">
+      <h3>🌐 100% Client-Side</h3>
+      <ul>
+        <li>All GitHub operations run in your browser</li>
+        <li>No server timeouts for large patterns</li>
+        <li>Real-time progress tracking</li>
+      </ul>
+    </td>
+    <td width="50%">
+      <h3>⏱️ Resumable Operations</h3>
+      <ul>
+        <li>Auto-save progress for large jobs</li>
+        <li>Resume interrupted operations</li>
+        <li>Detailed time estimates</li>
+      </ul>
+    </td>
+  </tr>
 </table>
 
 ## 🚀 Installation
@@ -109,9 +129,10 @@ Then open **[http://localhost:3000](http://localhost:3000)** in your browser to 
    - Configure your username and repository details
 
 3. **Generate Commits**
-   - Set your desired commit frequency
+   - Set your desired commit frequency (commits per minute)
    - Choose between creating real commits or exporting as an image
-   - Watch as your contribution graph transforms into art
+   - Watch the real-time progress as commits are generated in your browser
+   - For large patterns, you can safely leave the tab open - the process will continue
 
 ### Recommended Settings
 
@@ -119,22 +140,34 @@ Then open **[http://localhost:3000](http://localhost:3000)** in your browser to 
 Repository: a dedicated empty repository
 Commit Rate: 60-100 per minute (to avoid API rate limits)
 Token Scope: Fine-grained with minimal permissions
+Browser: Keep the tab open for large operations
 ```
 
 ## 🛡️ Security
 
 GitHub Matrix is designed with security as a priority:
 
-- **Client-side only**: All operations run in your browser
+- **100% client-side**: All GitHub operations run entirely in your browser 
+- **No server calls**: Commit generation happens directly from browser to GitHub API
+- **Resumable operations**: Progress is saved locally for large patterns
 - **No server storage**: Your GitHub token is never sent to any server
 - **Minimal permissions**: Uses fine-grained tokens with limited scope
 - **Zero analytics**: No tracking or data collection
 
 Your GitHub credentials and tokens remain on your device and are only used for direct GitHub API calls.
 
+## 💡 Technical Details
+
+- **Client-side architecture**: Eliminates server timeouts by moving all GitHub API calls to the browser
+- **Rate limiting**: Smart rate limiting to avoid GitHub API restrictions
+- **Progress tracking**: Real-time updates on commit generation progress
+- **Efficient batching**: Processes commits in optimized batches
+- **localStorage integration**: Saves progress for resuming large operations
+- **Detailed metrics**: Shows elapsed time, remaining time, and commit rates
+
 ## 📃 License
 
-Released under the MIT License. See [LICENSE](LICENSE) for details.
+Released under the MIT License. See [LICENSE](https://github.com/thesupersaurabh/github-matrix/blob/main/LICENSE) for details.
 
 ## 🤝 Contributing
 
