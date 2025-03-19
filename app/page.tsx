@@ -159,7 +159,7 @@ export default function Home() {
                       rel="noopener noreferrer"
                       className="text-green-300 hover:text-green-200 transition-colors inline-flex items-center font-bold tracking-wider text-lg"
                     >
-                      SAURABH_KUMAR_THAKUR
+                      SAURABH_
                       <ExternalLink className="h-3 w-3 ml-1.5" />
                     </Link>
                   </div>
@@ -169,14 +169,10 @@ export default function Home() {
                 <div className="h-px w-20 md:h-14 md:w-px bg-gradient-to-r md:bg-gradient-to-b from-transparent via-green-500/30 to-transparent"></div>
                 
                 {/* System info */}
-                <div className="px-4 py-2 bg-black/50 rounded-md border border-green-500/20 grid grid-cols-3 gap-4 min-w-[280px] text-center">
+                <div className="px-4 py-2 bg-black/50 rounded-md border border-green-500/20 grid grid-cols-2 gap-4 min-w-[280px] text-center">
                   <div className="flex flex-col">
                     <span className="text-green-500/40 text-[10px] mb-1">VERSION</span>
                     <span className="text-green-300">v1.2.1</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-green-500/40 text-[10px] mb-1">THEME</span>
-                    <span className="text-green-300">CYBERPUNK</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-green-500/40 text-[10px] mb-1">STATUS</span>
