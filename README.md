@@ -14,13 +14,13 @@
   
   <p>
     <a href="https://ghm.thesaurabh.tech/">Live Demo</a> •
-    <a href="#key-features">Key Features</a> •
-    <a href="#installation">Installation</a> •
-    <a href="#usage-guide">Usage Guide</a> •
-    <a href="#security">Security</a> •
-    <a href="#technical-details">Technical Details</a> •
-    <a href="#license">License</a> •
-    <a href="#contributing">Contributing</a>
+    <a href="#-key-features">Key Features</a> •
+    <a href="#-installation">Installation</a> •
+    <a href="#-usage-guide">Usage Guide</a> •
+    <a href="#-security">Security</a> •
+    <a href="#-technical-details">Technical Details</a> •
+    <a href="#-license">License</a> •
+    <a href="#-contributing">Contributing</a>
   </p>
 </div>
 
