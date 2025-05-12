@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { Toaster } from '@/components/ui/toaster'
 import MatrixAnimation from '@/components/matrix-animation'
 import { TooltipProvider } from "@/components/ui/tooltip"
+import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,7 +31,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head />
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-NQJ6B6FCM6"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-NQJ6B6FCM6');
+          `}
+        </Script>
+      </head>
       <body className={cn(inter.className, 'min-h-screen bg-black')}>
         <MatrixAnimation />
         <TooltipProvider delayDuration={0}>
