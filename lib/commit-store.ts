@@ -65,9 +65,11 @@ export const useCommitStore = create<CommitStore>()(
       
       setSelectedYear: (year) => {
         set((state) => {
-          const yearData = state.yearDataMap[year] || []
+          // Ensure year is within valid GitHub bounds (2008-2100)
+          const validYear = Math.max(2008, Math.min(2100, year))
+          const yearData = state.yearDataMap[validYear] || []
           return { 
-            selectedYear: year, 
+            selectedYear: validYear, 
             commitData: yearData,
           }
         })
@@ -87,7 +89,6 @@ export const useCommitStore = create<CommitStore>()(
       name: "github-matrix-storage",
       partialize: (state) => ({ 
         yearDataMap: state.yearDataMap, 
-        selectedYear: state.selectedYear,
         commitLogs: state.commitLogs,
         formData: state.formData
       }),

@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
 import type { CommitCell } from "@/lib/types"
-import { CircuitBoard, Zap, Heart, AlignLeft, TrendingUp, Grid, Info, BarChart, Target, GitBranch, Calendar } from "lucide-react"
+import { CircuitBoard, Zap, Heart, AlignLeft, TrendingUp, Grid, Info, BarChart, Target, GitBranch, Calendar, Smile, Ghost, X } from "lucide-react"
 
 // Pattern templates with cyberpunk icons and names
 const PATTERNS = {
@@ -21,6 +21,9 @@ const PATTERNS = {
   circuit: { name: "CIRCUIT_PATH", icon: <GitBranch className="h-4 w-4" /> },
   calendar: { name: "TIME_BLOCKS", icon: <Calendar className="h-4 w-4" /> },
   histogram: { name: "DATA_FLOW", icon: <BarChart className="h-4 w-4" /> },
+  smile: { name: "DIGITAL_SMILE", icon: <Smile className="h-4 w-4" /> },
+  invader: { name: "SPACE_INVADER", icon: <Ghost className="h-4 w-4" /> },
+  cross: { name: "X_TARGET", icon: <X className="h-4 w-4" /> },
 }
 
 export default function PatternSelector() {
@@ -80,6 +83,15 @@ export default function PatternSelector() {
         break
       case "histogram":
         applyHistogramPattern()
+        break
+      case "smile":
+        applySmilePattern()
+        break
+      case "invader":
+        applyInvaderPattern()
+        break
+      case "cross":
+        applyCrossPattern()
         break
     }
   }
@@ -495,6 +507,99 @@ export default function PatternSelector() {
       title: "Pattern Applied",
       description: "DATA_FLOW pattern has been applied",
     })
+  }
+
+  // Apply smile pattern
+  const applySmilePattern = () => {
+    if (!mounted) return
+    const maxIntensity = intensity[0]
+    let newData = [...commitData]
+    
+    // Smile shape positions relative to a center
+    const smilePattern = [
+      [1, -2], [1, 2], // eyes
+      [3, -3], [4, -2], [4, -1], [4, 0], [4, 1], [4, 2], [3, 3] // smile arc
+    ]
+    
+    const offsetWeek = 26
+    const offsetDay = 3
+    
+    newData = newData.map(cell => ({ ...cell, level: 0 }))
+    
+    smilePattern.forEach(([relY, relX]) => {
+      const index = ((offsetWeek + relX) * 7) + (offsetDay + relY - 2)
+      if (index >= 0 && index < newData.length && newData[index].inYear) {
+        newData[index].level = maxIntensity
+      }
+    })
+    
+    setCommitData(newData)
+    toast({ title: "Pattern Applied", description: "DIGITAL_SMILE pattern has been applied" })
+  }
+
+  // Apply space invader pattern
+  const applyInvaderPattern = () => {
+    if (!mounted) return
+    const maxIntensity = intensity[0]
+    let newData = [...commitData]
+    
+    // 11x8 invader bitmap
+    const invaderPattern = [
+      [0,0,1,0,0,0,0,0,1,0,0],
+      [0,0,0,1,0,0,0,1,0,0,0],
+      [0,0,1,1,1,1,1,1,1,0,0],
+      [0,1,1,0,1,1,1,0,1,1,0],
+      [1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,1,1,1,1,1,1,1,0,1],
+      [1,0,1,0,0,0,0,0,1,0,1],
+      [0,0,0,1,1,0,1,1,0,0,0],
+    ]
+    
+    newData = newData.map(cell => ({ ...cell, level: 0 }))
+    
+    const offsetWeek = 21 // centerish
+    
+    invaderPattern.forEach((row, y) => {
+      row.forEach((val, x) => {
+        if (val) {
+          const index = ((offsetWeek + x) * 7) + y
+          if (index >= 0 && index < newData.length && newData[index].inYear) {
+            newData[index].level = maxIntensity
+          }
+        }
+      })
+    })
+    
+    setCommitData(newData)
+    toast({ title: "Pattern Applied", description: "SPACE_INVADER pattern has been applied" })
+  }
+
+  // Apply cross pattern
+  const applyCrossPattern = () => {
+    if (!mounted) return
+    const maxIntensity = intensity[0]
+    let newData = [...commitData]
+    
+    newData = newData.map(cell => ({ ...cell, level: 0 }))
+    
+    const offsetWeek = 26
+    const offsetDay = 3
+    
+    for (let i = -3; i <= 3; i++) {
+      // Main diagonal
+      let index1 = ((offsetWeek + i) * 7) + (offsetDay + i)
+      if (index1 >= 0 && index1 < newData.length && newData[index1].inYear) {
+        newData[index1].level = maxIntensity
+      }
+      // Anti-diagonal
+      let index2 = ((offsetWeek + i) * 7) + (offsetDay - i)
+      if (index2 >= 0 && index2 < newData.length && newData[index2].inYear) {
+        newData[index2].level = maxIntensity
+      }
+    }
+    
+    setCommitData(newData)
+    toast({ title: "Pattern Applied", description: "X_TARGET pattern has been applied" })
   }
 
   if (!mounted) {

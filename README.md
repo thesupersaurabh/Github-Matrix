@@ -13,7 +13,7 @@
   <h3>Hack the GitHub contribution graph with style.</h3>
   
   <p>
-    <a href="https://ghm.thesaurabh.tech/">Live Demo</a> •
+    <a href="https://ghm.thesaurabh.me/">Live Demo</a> •
     <a href="#-key-features">Key Features</a> •
     <a href="#-installation">Installation</a> •
     <a href="#-usage-guide">Usage Guide</a> •
@@ -187,8 +187,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
     <a href="https://linkedin.com/in/thesupersaurabh">
       <img src="https://img.shields.io/badge/LinkedIn-Connect-blue?style=social&logo=linkedin" alt="LinkedIn" />
     </a>
-    <a href="https://thesaurabh.tech">
-      <img src="https://img.shields.io/badge/Portfolio-thesaurabh.tech-green?style=social" alt="Portfolio" />
+    <a href="https://thesaurabh.me">
+      <img src="https://img.shields.io/badge/Portfolio-thesaurabh.me-green?style=social" alt="Portfolio" />
     </a>
   </p>
 </div> 

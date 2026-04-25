@@ -1,20 +1,20 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Download, RefreshCw } from "lucide-react"
+import { Download, RefreshCw, Minus, Plus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useCommitStore } from "@/lib/commit-store"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Contribution levels with corresponding colors (Cyberpunk colors)
 const CONTRIBUTION_LEVELS = [
-  { level: 0, color: "#090909" },
-  { level: 1, color: "#003b00" },
-  { level: 2, color: "#008000" },
-  { level: 3, color: "#00ff00" },
-  { level: 4, color: "#00ff80" },
+  { level: 0, color: "#0f1712" },
+  { level: 1, color: "#004400" },
+  { level: 2, color: "#008800" },
+  { level: 3, color: "#00cc00" },
+  { level: 4, color: "#33ff33" },
 ]
 
 // Months to display
@@ -23,8 +23,9 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 // Days of the week to display
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-// Available years
-const YEARS = [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+// Available years (dynamically generated up to current year + 1 for future planning)
+const currentYear = new Date().getFullYear()
+const YEARS = Array.from({ length: currentYear - 2008 + 2 }, (_, i) => 2008 + i)
 
 // Define the cell data interface for TypeScript
 interface CellData {
@@ -66,13 +67,42 @@ export default function ContributionGraph() {
   const [isClient, setIsClient] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [totalCommits, setTotalCommits] = useState(0)
+  const [yearInput, setYearInput] = useState("")
+  
+  const isDraggingRef = useRef(false)
+  const dragLevelRef = useRef(0)
   const graphRef = useRef<HTMLDivElement>(null)
+
+  // Handle global mouse up to stop drawing
+  useEffect(() => {
+    const handleMouseUp = () => {
+      isDraggingRef.current = false
+    }
+    window.addEventListener('mouseup', handleMouseUp)
+    return () => window.removeEventListener('mouseup', handleMouseUp)
+  }, [])
+
+  // Sync year input when selected year changes from store
+  useEffect(() => {
+    // Correct corrupted local storage
+    if (selectedYear < 2008 || selectedYear > 2100) {
+      setSelectedYear(new Date().getFullYear())
+      return
+    }
+    setYearInput(selectedYear.toString())
+  }, [selectedYear, setSelectedYear])
 
   // Simple client-side initialization
   useEffect(() => {
     setIsClient(true)
-    initGrid()
-  }, [selectedYear])
+  }, [])
+
+  // Initialize grid when year changes or if it's empty
+  useEffect(() => {
+    if (isClient && commitData.length === 0) {
+      initGrid()
+    }
+  }, [selectedYear, isClient, commitData.length])
 
   // Update commit count when data changes
   useEffect(() => {
@@ -84,7 +114,6 @@ export default function ContributionGraph() {
 
   // Initialize grid data
   const initGrid = () => {
-    if (!isClient) return
     
     // Create a date for Jan 1 of the selected year
     const startDate = new Date(selectedYear, 0, 1)
@@ -122,12 +151,26 @@ export default function ContributionGraph() {
     setCommitData(cells)
   }
 
-  // Handle cell click to change level
-  const handleCellClick = (index: number) => {
+  // Handle cell mouse down to start drawing
+  const handleCellMouseDown = (index: number) => {
     if (!commitData[index]?.inYear) return
     
     const newData = [...commitData]
-    newData[index].level = (newData[index].level + 1) % 5
+    const newLevel = (newData[index].level + 1) % 5
+    newData[index] = { ...newData[index], level: newLevel }
+    setCommitData(newData)
+    
+    isDraggingRef.current = true
+    dragLevelRef.current = newLevel
+  }
+
+  // Handle cell mouse enter to continue drawing
+  const handleCellMouseEnter = (index: number) => {
+    if (!isDraggingRef.current || !commitData[index]?.inYear) return
+    if (commitData[index].level === dragLevelRef.current) return // Optimization
+    
+    const newData = [...commitData]
+    newData[index] = { ...newData[index], level: dragLevelRef.current }
     setCommitData(newData)
   }
 
@@ -209,25 +252,48 @@ export default function ContributionGraph() {
           <div className="text-green-500 font-mono text-sm hidden sm:block">
             <span className="text-green-500/60">COMMITS:</span> {totalCommits}
           </div>
-          <Select 
-            value={selectedYear.toString()}
-            onValueChange={(value) => setSelectedYear(parseInt(value))}
-          >
-            <SelectTrigger className="w-full sm:w-32 bg-black/70 border-green-500/50 text-green-500 font-mono hover:border-green-500 transition-colors">
-              <SelectValue placeholder="Select Year" />
-            </SelectTrigger>
-            <SelectContent className="bg-black border-green-500/50 text-green-500 font-mono">
-              {YEARS.map((year) => (
-                <SelectItem 
-                  key={`year-${year}`}
-                  value={year.toString()} 
-                  className="text-green-500 hover:bg-green-500/20 focus:bg-green-500/20 focus:text-green-300"
-                >
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-9 w-9 rounded-r-none bg-black/70 border-green-500/50 text-green-500 hover:bg-green-500/20 hover:text-green-300 border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+              onClick={() => setSelectedYear(Math.max(2008, selectedYear - 1))}
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            <Input 
+              type="number"
+              min="2008"
+              max="2100"
+              value={yearInput}
+              onChange={(e) => setYearInput(e.target.value)}
+              onBlur={() => {
+                let val = parseInt(yearInput)
+                if (isNaN(val)) val = new Date().getFullYear()
+                val = Math.max(2008, Math.min(2100, val))
+                setYearInput(val.toString())
+                setSelectedYear(val)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  let val = parseInt(yearInput)
+                  if (isNaN(val)) val = new Date().getFullYear()
+                  val = Math.max(2008, Math.min(2100, val))
+                  setYearInput(val.toString())
+                  setSelectedYear(val)
+                }
+              }}
+              className="w-16 sm:w-20 h-9 rounded-none text-center bg-black/70 border-green-500/50 text-green-500 font-mono hover:border-green-500 focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors px-1"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-9 w-9 rounded-l-none bg-black/70 border-green-500/50 text-green-500 hover:bg-green-500/20 hover:text-green-300 border-l-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+              onClick={() => setSelectedYear(Math.min(2100, selectedYear + 1))}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
           <div className="text-green-500 font-mono text-sm sm:hidden ml-auto">
             <span className="text-green-500/60">COMMITS:</span> {totalCommits}
           </div>
@@ -235,7 +301,7 @@ export default function ContributionGraph() {
       </div>
 
       {/* Main content */}
-      <div ref={graphRef} className="relative border border-green-500/20 rounded p-4 bg-black/40">
+      <div ref={graphRef} className="relative border border-green-500/30 rounded p-4 bg-black/60 shadow-[inset_0_0_20px_rgba(0,255,0,0.05)] backdrop-blur-md">
         {/* Future year notice */}
         {selectedYear > new Date().getFullYear() && (
           <div className="mb-3 text-xs text-yellow-400/90 font-mono bg-yellow-400/10 border border-yellow-400/30 p-2 rounded">
@@ -271,7 +337,7 @@ export default function ContributionGraph() {
               </div>
               
               {/* Simplified grid layout */}
-              <div className="grid grid-rows-7 grid-flow-col gap-[2px]">
+              <div className="grid grid-rows-7 grid-flow-col gap-[2px] select-none touch-none">
                 {commitData.map((cell, index) => {
                   const isInYear = cell.inYear
                   const level = isInYear ? cell.level : 0
@@ -283,16 +349,19 @@ export default function ContributionGraph() {
                         <div
                           role="button"
                           tabIndex={0}
-                          onClick={() => handleCellClick(index)}
+                          onMouseDown={() => handleCellMouseDown(index)}
+                          onMouseEnter={() => handleCellMouseEnter(index)}
+                          onDragStart={(e) => e.preventDefault()}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
-                              handleCellClick(index)
+                              handleCellMouseDown(index)
+                              isDraggingRef.current = false
                             }
                           }}
                           className={`
-                            inline-block w-[10px] h-[10px] rounded-sm p-0 border-0 m-0
-                            ${isInYear ? "cursor-pointer hover:ring-1 hover:ring-green-500/50" : "opacity-30 pointer-events-none"}
-                            ${level > 0 ? "animate-pulse-slow" : ""}
+                            inline-block w-[10px] h-[10px] rounded-[2px] p-0 border-0 m-0 transition-all duration-200
+                            ${isInYear ? "cursor-pointer hover:ring-2 hover:ring-green-400 hover:z-10" : "opacity-30 pointer-events-none"}
+                            ${level > 0 ? "shadow-[0_0_4px_rgba(0,255,0,0.3)]" : "shadow-[inset_0_0_2px_rgba(0,0,0,0.5)]"}
                           `}
                           style={{ backgroundColor: color }}
                           aria-label={formatDate(cell.date)}
@@ -340,7 +409,7 @@ export default function ContributionGraph() {
           </div>
           {totalCommits > 0 && (
             <div className="font-mono text-[10px] text-green-500/50">
-              Tip: Click on cells to increase intensity
+              Tip: Click and drag to quickly draw shapes!
             </div>
           )}
         </div>

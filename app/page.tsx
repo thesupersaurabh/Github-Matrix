@@ -6,6 +6,7 @@ import TerminalText from "@/components/terminal-text"
 import Link from "next/link"
 import Image from "next/image"
 import DonationSection from "@/components/donation-section"
+
 import TabSelector from "@/components/tab-selector"
 import NoSSR from "@/lib/no-ssr-wrapper"
 
@@ -154,7 +155,7 @@ export default function Home() {
                       <span className="bg-green-500/10 px-2 py-0.5 rounded-sm">Developed by</span>
                     </div>
                     <Link 
-                      href="https://thesaurabh.tech" 
+                      href="https://thesaurabh.me" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-green-300 hover:text-green-200 transition-colors inline-flex items-center font-bold tracking-wider text-lg"
